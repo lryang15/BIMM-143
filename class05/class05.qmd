@@ -1,0 +1,217 @@
+---
+title: "Class 5 data visualization with ggplot2"
+author: "Lena (A16420052)"
+format: pdf
+---
+
+## Using GGPLOT
+
+The ggplot2 package needs to be installed as it does not come with R "out of
+the box".
+
+We use the `install.package()` function to do this
+
+```{r}
+head(cars)
+```
+
+To use ggplot I need to load it up before I can call any of the functions in
+the package. I do this with the `library()` function.  
+
+```{r}
+library(ggplot2)
+ggplot()
+```
+
+All ggplot figures have at least 3 things:
+
+- data (the stuff we want to plot)
+- aesthetic mapping (aes vales)
+- geoms
+
+```{r}
+ggplot(cars)+
+  aes(x=speed, y=dist)+
+  geom_point()+
+  geom_smooth(method = "lm", se= FALSE)+
+  labs(title="Speed and Stopping Distances of Cars", x="Speed (mph)",
+       y= "Stopping Distance (ft)", subtitle = "cars are cool", 
+       caption="Dataset:'cars'")+
+  theme_bw()+ aes(lw=1, color="blue" , alpha=1)
+#geom_smooth adds trend line
+#labs() label function
+
+```
+
+ggplot is not the only graphing system in R there are lots of others. There is even "base R" graphics. 
+
+```{r}
+plot(cars)
+```
+
+Plot aesthetics using `aes()`
+
+```{r}
+url <- "https://bioboot.github.io/bimm143_S20/class-material/up_down_expression.txt"
+genes <- read.delim(url)
+head(genes)
+```
+
+```{r}
+nrow(genes)
+colnames(genes)
+table(genes$State)
+round(table(genes$State)/nrow(genes)*100, 2)
+sum(genes$State=="up")
+```
+
+```{r}
+url <- "https://bioboot.github.io/bimm143_S20/class-material/up_down_expression.txt"
+genes <- read.delim(url)
+#State tells us whether the difference in expression values between conditions is statistically significant 
+
+library(ggplot2)
+p <- ggplot(genes) + aes(x=Condition1, y=Condition2, col=State) + geom_point()
+p + scale_colour_manual(values=c("violet","turquoise","lightgreen")) +labs(title= "Gene Expression Changes Upon Drug Treatment", x= "Control (no drug)", y="Drug Treatment")
+```
+
+```{r}
+url <- "https://raw.githubusercontent.com/jennybc/gapminder/master/inst/extdata/gapminder.tsv"
+gapminder <- read.delim(url)
+#gapminder_2007 dataset which contains the variables GDP per capita gdpPercap and life expectancy lifeExp for 142 countries in the year 2007
+```
+
+```{r}
+# install.packages("dplyr")  ## un-comment to install if needed
+library(dplyr)
+
+gapminder_2007 <- gapminder %>% filter(year==2007)
+ggplot(gapminder_2007) +
+  aes(x=gdpPercap, y=lifeExp) + geom_point(alpha=0.5)
+#alpha is for transparency
+```
+
+Coloring scheme based on the categorical data type of the variable continent
+
+```{r}
+ggplot(gapminder_2007) + 
+  aes(x = gdpPercap, y = lifeExp, color = pop) +
+  geom_point(alpha=0.8)
+```
+
+More variables for `aes()`
+```{r}
+ggplot(gapminder_2007) +
+  aes(x=gdpPercap, y=lifeExp, color=continent, size=pop) +
+  geom_point(alpha=0.5)
+#pop (in millions)
+#continent variable (sorted by color)
+```
+
+Coloring the points by numeric variable population pop
+
+```{r}
+ggplot(gapminder_2007) + 
+  aes(x = gdpPercap, y = lifeExp, color = pop) +
+  geom_point(alpha=0.8)
+```
+Adjusting point size
+
+```{r}
+#set point size based on the population (size=pop) of each country we can use
+ggplot(gapminder_2007) + 
+  aes(x = gdpPercap, y = lifeExp, size = pop) +
+  geom_point(alpha=0.5)
+
+```
+
+```{r}
+#scale_size_area() so point size are proportional with + operator
+ggplot(gapminder_2007) + 
+  geom_point(aes(x = gdpPercap, y = lifeExp,
+                 size = pop), alpha=0.5) + 
+  scale_size_area(max_size = 10)
+```
+
+1957 vs 2007
+```{r}
+gapminder_1957 <- gapminder %>% filter(year==1957)
+ggplot(gapminder_1957) +
+  geom_point(aes(x=gdpPercap, y=lifeExp, size=pop, color=continent, alpha=0.7))+
+  scale_size_area(max_size = 15)
+```
+
+1957 and 2007
+```{r}
+gapminder_1957_and_2007 <- gapminder %>% filter(year==1957 | year==2007)
+
+ggplot(gapminder_1957_and_2007) + 
+  geom_point(aes(x = gdpPercap, y = lifeExp, color=continent,
+                 size = pop), alpha=0.7) + 
+  scale_size_area(max_size = 15) +
+  facet_wrap(~year)
+#facet_wrap(~year) layer to add both years
+```
+
+## Bar Charts
+Create bar charts using `geom_col()`
+Fill bars with color using `fill` aesthetic
+
+Each category is represented by one bar with a height defined by each 
+numeric value. 
+Good for comparing values among different groups
+
+```{r}
+gapminder_top5 <- gapminder %>% 
+  filter(year==2007) %>% 
+  arrange(desc(pop)) %>% 
+  top_n(5, pop)
+
+gapminder_top5
+```
+ggplot barchart
+
+```{r}
+ggplot(gapminder_top5) +
+  geom_col(aes(x=country, y=pop)) 
+```
+
+life expectancy of the five biggest countries by population in 2007
+```{r}
+ggplot(gapminder_top5)+
+  geom_col(aes(x=country, y=lifeExp))
+```
+
+Filling Bars with color
+```{r}
+ggplot(gapminder_top5) + 
+  geom_col(aes(x = country, y = pop, fill = continent))
+#continent variable is a categorical variable; clear color scheme
+#lifeExp is a numerical variable and has a range of color scheme
+ggplot(gapminder_top5) + 
+  geom_col(aes(x = country, y = pop, fill = lifeExp))
+#fill is for how color scheme is
+```
+changing orders of bars
+```{r}
+ggplot(gapminder_top5)+
+  aes(x=reorder(country, -pop), y=pop, fill=gdpPercap)+geom_col()
+```
+
+same code different syntax
+```{r}
+ggplot(gapminder_top5)+
+  geom_col(aes(x=reorder(country, -pop), y=pop, fill=gdpPercap))
+```
+Flipping Bar Charts
+For clearer visualization using `coord_flip()`
+```{r}
+head(USArrests)
+```
+
+```{r}
+USArrests$State <- rownames(USArrests)
+ggplot(USArrests)+
+  geom_col(aes(x=reorder(State, Murder), y=Murder))+ coord_flip()
+
+```
