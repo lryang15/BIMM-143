@@ -1,2 +1,2 @@
 # BIMM-143
-Bioinformatics Lab
+Bioinformatics Lab UCSD.
