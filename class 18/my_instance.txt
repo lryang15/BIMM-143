@@ -1,0 +1,5 @@
+#My AWS instance: ubuntu@ec2-35-91-87-174.us-west-2.compute.amazonaws.com
+aws='ubuntu@ec2-35-91-87-174.us-west-2.compute.amazonaws.com'
+
+#shell variable
+
