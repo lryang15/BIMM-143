@@ -8,12 +8,10 @@ Bioinformatics Lab at UC San Diego.
 - Class09: [Structural Bioinformatics](https://github.com/lryang15/BIMM_143/blob/main/Class%2009/Class%2009.md)
 - Class10: [Halloween Mini Project](https://github.com/lryang15/BIMM_143/blob/main/class%2010/class%2010.md)
 - Class11: [Alpha Fold](https://github.com/lryang15/BIMM_143/blob/main/Class%2011/Class%2010%20pt%202.md)
-- Class12: [Genome informatics](
-- Class13:
-- Class14:
-- Class15:
-- Class16:
-- Class17:
-- Class18:
-- Class19:
+- Class12: [Genome informatics](https://github.com/lryang15/BIMM_143/blob/main/Class%2012/class12.md)
+- Class13: [DESeq](https://github.com/lryang15/BIMM_143/blob/main/Class%2013/wk%207%20class%2013.md)
+- Class14: [DESeq2 Mini Project](https://github.com/lryang15/BIMM_143/blob/main/Class%2014/wk%207%20class%2014.md)
+- Class17: [UNIX](https://github.com/lryang15/BIMM_143/blob/main/class17/class17.md)
+- Class18: [Analyzing sequencing data in the cloud](https://github.com/lryang15/BIMM_143/blob/main/class%2018/wk9lab18.md)
+- Class19: [Pertussis and the CMI-PB project](https://github.com/lryang15/BIMM_143/blob/main/class%2019/class%2019.md)
 
