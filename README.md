@@ -14,6 +14,6 @@ Bioinformatics Lab at UC San Diego.
 - Class15: Git and GitHub
 - Class16: --
 - Class17: [UNIX](https://github.com/lryang15/BIMM_143/blob/main/class17/class17.md)
-- Class18: [Analyzing sequencing data in the cloud](https://github.com/lryang15/BIMM_143/blob/main/class%2018/wk9lab18.md)
+- Class18: [Analyzing sequencing data in the cloud (AWS)](https://github.com/lryang15/BIMM_143/blob/main/class%2018/wk9lab18.md)
 - Class19: [Pertussis and the CMI-PB project](https://github.com/lryang15/BIMM_143/blob/main/class%2019/class%2019.md)
 
