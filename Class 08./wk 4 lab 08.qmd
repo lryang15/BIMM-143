@@ -1,0 +1,263 @@
+---
+title: "Class 08: Mini Project"
+author: "Lena (A16420052)"
+format: pdf
+editor: visual
+---
+
+## Outline
+
+Today we will apply the machine learning methods we introduced in the last class on breast cancer biopsy data from fine needle aspiration (FNA)
+
+## Data input
+
+The data is supplied in CSV format
+
+```{r}
+wisc.df <- read.csv("WisconsinCancer.csv", row.names=1)
+head(wisc.df)
+```
+
+```{r}
+# We can use -1 here to remove the first column
+wisc.data <- wisc.df[,-1]
+```
+
+```{r}
+#set diagnosis as a factor 
+diagnosis <- as.factor(wisc.df$diagnosis)
+head(diagnosis)
+```
+
+> Q1. How many observations are in the dataset?
+
+```{r}
+nrow(wisc.data)
+#dim(wisc.data) also works!
+```
+
+There are 569 observations in the dataset
+
+> Q2. How many of the observations have a malignant diagnosis?
+
+```{r}
+sum(diagnosis== "M")
+
+#table()
+table(wisc.df$diagnosis)
+```
+
+There are 212 observations with a malignant diagnosis.
+
+> Q3. How many variables/features in the data are suffixed with _mean?
+
+```{r}
+#colnames(wisc.data)
+#grep searches first argument inside of second factor 
+length(grep("_mean", colnames(wisc.data)))
+```
+
+There are 10 variables/features with the suffix _mean.
+
+## Principle Component Analysis
+
+We need to scale our input data before PCA as some of the columns are measures in terms of very different units with different means and different variances. The upshot here is we set `scale=TRUE` argument to `prcomp()`
+
+```{r}
+# Check column means and standard deviations
+colMeans(wisc.data)
+apply(wisc.data,2,sd)
+```
+
+```{r}
+# Perform PCA on wisc.data by completing the following code
+wisc.pr <- prcomp(wisc.data, scale=TRUE)
+```
+
+```{r}
+# Look at summary of results
+summary(wisc.pr)
+```
+
+Generate one of our main results figures- the PC plot (a.k.a "score plot", "orientation plot", "PC1 vs PC2 plot", "PC plot", "projection plot", etc.) It is known by different names in different fields.
+
+```{r}
+#can use xlab, ylab arguments to name axis in plot()
+plot(wisc.pr$x[, 1], wisc.pr$x[, 2],col=diagnosis)
+```
+
+> Q4. From your results, what proportion of the original variance is captured by the first principal components (PC1)?
+
+```{r}
+wisc.pr$sdev[1]^2/sum(wisc.pr$sdev^2)
+#wisc.pr$sdev[1] gives you the stdev for PC1 ([1])
+#sum(wisc.pr$sdev^2) gives you total for the proportion
+```
+
+> Q5. How many principal components (PCs) are required to describe at least 70% of the original variance in the data?
+
+```{r}
+#cumsum() cumulative sum
+var_PCs <- cumsum(wisc.pr$sdev^2/sum(wisc.pr$sdev^2))
+which(var_PCs >= 0.7)[1]
+var_PCs[3]
+```
+
+> Q6. How many principal components (PCs) are required to describe at least 90% of the original variance in the data?
+
+```{r}
+var_PCs <- cumsum(wisc.pr$sdev^2/sum(wisc.pr$sdev^2))
+which(var_PCs >= 0.9)[1]
+var_PCs[7]
+```
+
+## Interpreting PCA results
+
+```{r}
+biplot(wisc.pr)
+```
+
+> Q7. What stands out to you about this plot? Is it easy or difficult to understand? Why?
+
+This plot is very difficult to interpret and understand because the points are overlapping.
+
+```{r}
+# Scatter plot observations by components 1 and 2
+plot(wisc.pr$x[,1], wisc.pr$x[, 2], col = diagnosis , 
+     xlab = "PC1", ylab = "PC2")
+```
+
+> Q8. Generate a similar plot for principal components 1 and 3. What do you notice about these plots?
+
+```{r}
+plot(wisc.pr$x[,1], wisc.pr$x[, 3], col = diagnosis , 
+     xlab = "PC1", ylab = "PC3")
+```
+
+Each point represents observations variance for PC1 VS PC3 instead of a point for each observation for every PC.
+
+Using ggplot2 to visualize data
+
+```{r}
+# Create a data.frame for ggplot
+df <- as.data.frame(wisc.pr$x)
+df$diagnosis <- diagnosis
+
+# Load the ggplot2 package
+library(ggplot2)
+
+# Make a scatter plot colored by diagnosis
+ggplot(df, aes(PC1, PC2, col=diagnosis)) + 
+  geom_point()
+```
+
+## Variance Explained
+
+```{r}
+# Calculate variance of each component
+pr.var <- wisc.pr$sdev^2
+head(pr.var)
+```
+
+```{r}
+# Variance explained by each principal component: pve
+pve <- pr.var/ sum(pr.var)
+
+# Plot variance explained for each principal component
+plot(pve, xlab = "Principal Component", 
+     ylab = "Proportion of Variance Explained", 
+     ylim = c(0, 1), type = "o")
+```
+
+## Communicating PCA results
+
+> Q9. For the first principal component, what is the component of the loading vector (i.e. wisc.pr$rotation[,1]) for the feature concave.points_mean?
+
+```{r}
+load_vec <- wisc.pr$rotation[,1]
+load_vec["concave.points_mean"]
+```
+
+> Q10. What is the minimum number of principal components required to explain 80% of the variance of the data?
+
+```{r}
+pr.var_PC <- cumsum(pve)
+which(pr.var_PC >= 0.8)[1]
+pr.var_PC[5]
+```
+
+## Hierarchical clustering
+
+```{r}
+data.scale <- scale(wisc.data)
+data.dist <- dist(data.scale)
+wisc.hclust <- hclust(data.dist, method= "complete")
+wisc.hclust
+```
+
+> Q11. Using the plot() and abline() functions, what is the height at which the clustering model has 4 clusters?
+
+```{r}
+plot(wisc.hclust)
+abline(h=19, col="red", lty=2)
+```
+
+From analyzing the dendrogram, h=19 is where the clustering model has 4 clusters.
+
+## Selecting number of clusters
+
+Generate 2 cluster groups from this hclust object.
+
+```{r}
+wisc.hclust.clusters <- cutree(wisc.hclust, k=2)
+#if you do h do 18
+table(wisc.hclust.clusters, diagnosis)
+```
+
+> Q12. Can you find a better cluster vs diagnoses match by cutting into a different number of clusters between 2 and 10?
+
+No I cannot find a better cluster vs diagnoses match than k=4. All other number of clusters result in low separation for cluster vs diagnosis match.
+
+> Q13. Which method gives your favorite results for the same data.dist dataset? Explain your reasoning.
+
+Method= ward.D2 because it separates clusters sooner at a lower height.
+
+```{r}
+single <- hclust(data.dist, method="single")
+average <- hclust(data.dist, method="average")
+ward.D2 <- hclust(data.dist, method="ward.D2")
+
+plot(single)
+plot(average)
+plot(ward.D2)
+```
+
+## Combining methods
+
+```{r}
+#it is [7] because that is what we solved in Q6
+d <- dist(wisc.pr$x[, 1:7])
+wisc.hclust.pr <- hclust(d, method= "ward.D2")
+grps <- cutree(wisc.hclust.pr, k=2)
+table(grps)
+table(grps, diagnosis)
+plot(wisc.pr$x[,1:2], col=grps)
+#col=diagnosis
+plot(wisc.pr$x[,1:2], col=diagnosis)
+```
+
+> Q15. How well does the newly created model with four clusters separate out the two diagnoses?
+
+The newly created model with four clusters separates better.
+
+```{r}
+# Compare to actual diagnoses
+wisc.pr.hclust <- hclust(dist(wisc.pr$x[, 1:7]), method="ward.D2")
+wisc.pr.hclust.clusters <- cutree(wisc.pr.hclust, k=2)
+table(wisc.pr.hclust.clusters, diagnosis)
+plot(wisc.pr$x[,1:7], col=diagnosis)
+```
+
+```{r}
+#wisc.pr$x is pulling PCs
+```
